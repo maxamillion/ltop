@@ -34,7 +34,7 @@ func (ov *OverviewView) Render(snapshot *models.MetricsSnapshot, width, height i
 	sections = append(sections, ov.renderTopProcesses(snapshot))
 
 	content := strings.Join(sections, "\n\n")
-	return styles.Panel().Render(content)
+	return styles.Panel().Width(width).Render(content)
 }
 
 func (ov *OverviewView) renderSystemInfo(snapshot *models.MetricsSnapshot) string {

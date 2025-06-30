@@ -34,7 +34,7 @@ func (cv *CPUView) Render(snapshot *models.MetricsSnapshot, width, height int) s
 	sections = append(sections, cv.renderCPUInfo(snapshot))
 
 	content := strings.Join(sections, "\n\n")
-	return styles.Panel().Render(content)
+	return styles.Panel().Width(width).Render(content)
 }
 
 func (cv *CPUView) renderOverallCPU(snapshot *models.MetricsSnapshot) string {

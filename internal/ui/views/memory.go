@@ -36,7 +36,7 @@ func (mv *MemoryView) Render(snapshot *models.MetricsSnapshot, width, height int
 	sections = append(sections, mv.renderSwapUsage(snapshot))
 
 	content := strings.Join(sections, "\n\n")
-	return styles.Panel().Render(content)
+	return styles.Panel().Width(width).Render(content)
 }
 
 func (mv *MemoryView) renderMemoryOverview(snapshot *models.MetricsSnapshot) string {

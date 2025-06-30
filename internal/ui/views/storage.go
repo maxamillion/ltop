@@ -31,7 +31,7 @@ func (sv *StorageView) Render(snapshot *models.MetricsSnapshot, width, height in
 	sections = append(sections, sv.renderDiskIO(snapshot))
 
 	content := strings.Join(sections, "\n\n")
-	return styles.Panel().Render(content)
+	return styles.Panel().Width(width).Render(content)
 }
 
 func (sv *StorageView) renderFilesystems(snapshot *models.MetricsSnapshot) string {

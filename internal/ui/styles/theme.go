@@ -111,8 +111,7 @@ func Panel() lipgloss.Style {
 	return lipgloss.NewStyle().
 		BorderStyle(lipgloss.RoundedBorder()).
 		BorderForeground(lipgloss.Color(DefaultTheme.Secondary)).
-		Padding(1).
-		Margin(0, 1)
+		Padding(1)
 }
 
 func HelpText() lipgloss.Style {
