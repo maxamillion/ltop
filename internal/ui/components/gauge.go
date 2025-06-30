@@ -17,6 +17,10 @@ type Gauge struct {
 }
 
 func NewGauge(width int) *Gauge {
+	// Ensure minimum width to prevent divide by zero and negative calculations
+	if width < 1 {
+		width = 1
+	}
 	return &Gauge{
 		Width:     width,
 		ShowValue: true,
@@ -35,7 +39,13 @@ func (g *Gauge) Render(value float64, label string) string {
 	}
 
 	filled := int((value / 100.0) * float64(g.Width))
+	if filled > g.Width {
+		filled = g.Width
+	}
 	empty := g.Width - filled
+	if empty < 0 {
+		empty = 0
+	}
 
 	bar := strings.Repeat(g.BarChar, filled) + strings.Repeat(g.EmptyChar, empty)
 
@@ -74,7 +84,13 @@ func (g *Gauge) RenderWithColors(value float64, label string, lowColor, midColor
 	}
 
 	filled := int((value / 100.0) * float64(g.Width))
+	if filled > g.Width {
+		filled = g.Width
+	}
 	empty := g.Width - filled
+	if empty < 0 {
+		empty = 0
+	}
 
 	bar := strings.Repeat(g.BarChar, filled) + strings.Repeat(g.EmptyChar, empty)
 
@@ -116,6 +132,10 @@ type GaugeSegment struct {
 }
 
 func NewMultiGauge(width int) *MultiGauge {
+	// Ensure minimum width to prevent divide by zero and negative calculations
+	if width < 1 {
+		width = 1
+	}
 	return &MultiGauge{
 		Width:     width,
 		ShowTotal: true,
