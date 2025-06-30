@@ -6,9 +6,9 @@ import (
 )
 
 // TestGaugeRegressionNegativeRepeat tests the specific issue that caused the panic
-// on Fedora 41: "strings: negative Repeat count"
+// on Fedora 41 and Go 1.24.4: "strings: negative Repeat count"
 // This test verifies that the fix prevents the panic that occurred when
-// floating point calculations resulted in `filled > width`, making `empty` negative.
+// floating point calculations resulted in negative values for filled or empty.
 func TestGaugeRegressionNegativeRepeat(t *testing.T) {
 	// These are the specific conditions that could trigger the original bug
 	testCases := []struct {
@@ -39,8 +39,12 @@ func TestGaugeRegressionNegativeRepeat(t *testing.T) {
 			empty := tc.width - filled
 			
 			// Log if this would have been a problematic case
+			if filled < 0 {
+				t.Logf("REGRESSION CASE: %s would cause panic - NEGATIVE FILLED=%d, width=%d", 
+					tc.desc, filled, tc.width)
+			}
 			if empty < 0 {
-				t.Logf("REGRESSION CASE: %s would cause panic - filled=%d, empty=%d, width=%d", 
+				t.Logf("REGRESSION CASE: %s would cause panic - filled=%d, NEGATIVE EMPTY=%d, width=%d", 
 					tc.desc, filled, empty, tc.width)
 			}
 			

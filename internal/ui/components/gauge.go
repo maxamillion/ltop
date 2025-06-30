@@ -39,6 +39,9 @@ func (g *Gauge) Render(value float64, label string) string {
 	}
 
 	filled := int((value / 100.0) * float64(g.Width))
+	if filled < 0 {
+		filled = 0
+	}
 	if filled > g.Width {
 		filled = g.Width
 	}
@@ -84,6 +87,9 @@ func (g *Gauge) RenderWithColors(value float64, label string, lowColor, midColor
 	}
 
 	filled := int((value / 100.0) * float64(g.Width))
+	if filled < 0 {
+		filled = 0
+	}
 	if filled > g.Width {
 		filled = g.Width
 	}
@@ -152,8 +158,12 @@ func (mg *MultiGauge) AddSegment(value uint64, label string, color lipgloss.Styl
 }
 
 func (mg *MultiGauge) Render(total uint64) string {
+	width := mg.Width
+	if width <= 0 {
+		width = 1
+	}
 	if total == 0 {
-		return strings.Repeat("░", mg.Width)
+		return strings.Repeat("░", width)
 	}
 
 	var result strings.Builder
@@ -165,6 +175,9 @@ func (mg *MultiGauge) Render(total uint64) string {
 		}
 		
 		segmentWidth := int(float64(segment.Value) / float64(total) * float64(mg.Width))
+		if segmentWidth < 0 {
+			segmentWidth = 0
+		}
 		if segmentWidth > remaining {
 			segmentWidth = remaining
 		}
