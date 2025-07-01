@@ -5,16 +5,16 @@ import (
 )
 
 type SystemConfig struct {
-	RefreshInterval time.Duration `json:"refresh_interval"`
-	MaxProcesses    int           `json:"max_processes"`
-	MaxLogEntries   int           `json:"max_log_entries"`
-	LogSources      []string      `json:"log_sources"`
-	Theme           string        `json:"theme"`
-	ShowCPUPercent  bool          `json:"show_cpu_percent"`
-	ShowMemoryPercent bool        `json:"show_memory_percent"`
-	SortBy          string        `json:"sort_by"`
-	SortOrder       string        `json:"sort_order"`
-	ViewMode        string        `json:"view_mode"`
+	RefreshInterval   time.Duration `json:"refresh_interval"`
+	MaxProcesses      int           `json:"max_processes"`
+	MaxLogEntries     int           `json:"max_log_entries"`
+	LogSources        []string      `json:"log_sources"`
+	Theme             string        `json:"theme"`
+	ShowCPUPercent    bool          `json:"show_cpu_percent"`
+	ShowMemoryPercent bool          `json:"show_memory_percent"`
+	SortBy            string        `json:"sort_by"`
+	SortOrder         string        `json:"sort_order"`
+	ViewMode          string        `json:"view_mode"`
 }
 
 func DefaultSystemConfig() SystemConfig {
@@ -22,7 +22,7 @@ func DefaultSystemConfig() SystemConfig {
 		RefreshInterval:   time.Second,
 		MaxProcesses:      100,
 		MaxLogEntries:     50,
-		LogSources:        []string{"/var/log/syslog", "journalctl"},
+		LogSources:        []string{"journalctl", "/var/log/messages", "/var/log/syslog"},
 		Theme:             "dark",
 		ShowCPUPercent:    true,
 		ShowMemoryPercent: true,
@@ -33,14 +33,14 @@ func DefaultSystemConfig() SystemConfig {
 }
 
 type AppState struct {
-	CurrentView    string        `json:"current_view"`
-	SelectedPID    int           `json:"selected_pid"`
-	SearchQuery    string        `json:"search_query"`
-	FilterActive   bool          `json:"filter_active"`
-	Paused         bool          `json:"paused"`
-	LastUpdate     time.Time     `json:"last_update"`
-	ViewHistory    []string      `json:"view_history"`
-	Errors         []AppError    `json:"errors"`
+	CurrentView  string     `json:"current_view"`
+	SelectedPID  int        `json:"selected_pid"`
+	SearchQuery  string     `json:"search_query"`
+	FilterActive bool       `json:"filter_active"`
+	Paused       bool       `json:"paused"`
+	LastUpdate   time.Time  `json:"last_update"`
+	ViewHistory  []string   `json:"view_history"`
+	Errors       []AppError `json:"errors"`
 }
 
 type AppError struct {
@@ -154,14 +154,14 @@ func (ll LogLevel) String() string {
 }
 
 type ResourceThreshold struct {
-	CPUWarning    float64 `json:"cpu_warning"`
-	CPUCritical   float64 `json:"cpu_critical"`
-	MemoryWarning float64 `json:"memory_warning"`
+	CPUWarning     float64 `json:"cpu_warning"`
+	CPUCritical    float64 `json:"cpu_critical"`
+	MemoryWarning  float64 `json:"memory_warning"`
 	MemoryCritical float64 `json:"memory_critical"`
-	DiskWarning   float64 `json:"disk_warning"`
-	DiskCritical  float64 `json:"disk_critical"`
-	LoadWarning   float64 `json:"load_warning"`
-	LoadCritical  float64 `json:"load_critical"`
+	DiskWarning    float64 `json:"disk_warning"`
+	DiskCritical   float64 `json:"disk_critical"`
+	LoadWarning    float64 `json:"load_warning"`
+	LoadCritical   float64 `json:"load_critical"`
 }
 
 func DefaultResourceThreshold() ResourceThreshold {

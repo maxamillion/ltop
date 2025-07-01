@@ -72,9 +72,10 @@ func (nv *NetworkView) renderNetworkRow(iface models.NetworkInterface) string {
 
 	state := utils.PadString(iface.State, widths[1], ' ')
 	stateStyle := styles.TableRow()
-	if iface.State == "up" {
+	switch iface.State {
+	case "up":
 		stateStyle = styles.Success()
-	} else if iface.State == "down" {
+	case "down":
 		stateStyle = styles.Muted()
 	}
 	parts = append(parts, stateStyle.Render(state))

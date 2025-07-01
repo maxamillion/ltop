@@ -49,12 +49,12 @@ func TestProcessStats(t *testing.T) {
 		"D": 1,  // Disk sleep
 		"Z": 2,  // Zombie
 	}
-	
+
 	total := 0
 	for _, count := range states {
 		total += count
 	}
-	
+
 	if total != 18 {
 		t.Errorf("Process state counting incorrect. Expected total: 18, Got: %d", total)
 	}
@@ -66,15 +66,15 @@ func TestProcessCPUCalculation(t *testing.T) {
 		totalTime    uint64
 		expected     float64
 	}{
-		{100, 50, 1000, 15.0}, // (100+50)/1000 * 100 = 15%
+		{100, 50, 1000, 15.0},  // (100+50)/1000 * 100 = 15%
 		{200, 200, 2000, 20.0}, // (200+200)/2000 * 100 = 20%
-		{0, 0, 100, 0.0}, // No CPU usage
+		{0, 0, 100, 0.0},       // No CPU usage
 	}
-	
+
 	for _, tc := range testCases {
 		percentage := float64(tc.utime+tc.stime) / float64(tc.totalTime) * 100.0
 		if abs(percentage-tc.expected) > 0.01 {
-			t.Errorf("Process CPU calculation incorrect. UTime: %d, STime: %d, Total: %d, Expected: %f, Got: %f", 
+			t.Errorf("Process CPU calculation incorrect. UTime: %d, STime: %d, Total: %d, Expected: %f, Got: %f",
 				tc.utime, tc.stime, tc.totalTime, tc.expected, percentage)
 		}
 	}

@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/charmbracelet/lipgloss"
 	"github.com/admiller/ltop/internal/ui/styles"
 	"github.com/admiller/ltop/pkg/utils"
+	"github.com/charmbracelet/lipgloss"
 )
 
 type Table struct {
@@ -111,7 +111,7 @@ func (t *Table) Render() string {
 		if actualIndex == t.Selected {
 			style = styles.TableRowSelected()
 		}
-		
+
 		renderedRow := t.renderRow(row, colWidths, style)
 		result.WriteString(renderedRow)
 		result.WriteString("\n")
@@ -127,7 +127,7 @@ func (t *Table) calculateColumnWidths() []int {
 
 	availableWidth := t.Width - (len(t.Headers) - 1)
 	colWidths := make([]int, len(t.Headers))
-	
+
 	totalContentWidth := 0
 	for i, header := range t.Headers {
 		maxWidth := len(header)
@@ -184,12 +184,12 @@ func (t *Table) getVisibleRows() [][]string {
 
 	start := t.ScrollTop
 	end := utils.Min(len(t.Rows), t.ScrollTop+t.Height-1)
-	
+
 	if start >= len(t.Rows) {
 		start = len(t.Rows) - 1
 		t.ScrollTop = start
 	}
-	
+
 	if end > len(t.Rows) {
 		end = len(t.Rows)
 	}
@@ -223,14 +223,14 @@ func (t *Table) SetSelected(index int) {
 
 func (t *Table) RenderWithInfo() string {
 	content := t.Render()
-	
+
 	if len(t.Rows) > 0 {
-		info := fmt.Sprintf("Showing %d-%d of %d", 
-			t.ScrollTop+1, 
-			utils.Min(t.ScrollTop+t.Height-1, len(t.Rows)), 
+		info := fmt.Sprintf("Showing %d-%d of %d",
+			t.ScrollTop+1,
+			utils.Min(t.ScrollTop+t.Height-1, len(t.Rows)),
 			len(t.Rows))
 		content += "\n" + styles.HelpText().Render(info)
 	}
-	
+
 	return content
 }

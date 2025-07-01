@@ -63,15 +63,15 @@ func GetDiskUsage(path string) (*DiskUsage, error) {
 }
 
 type CPUTimes struct {
-	User   uint64
-	Nice   uint64
-	System uint64
-	Idle   uint64
-	IOWait uint64
-	IRQ    uint64
-	SoftIRQ uint64
-	Steal  uint64
-	Guest  uint64
+	User      uint64
+	Nice      uint64
+	System    uint64
+	Idle      uint64
+	IOWait    uint64
+	IRQ       uint64
+	SoftIRQ   uint64
+	Steal     uint64
+	Guest     uint64
 	GuestNice uint64
 }
 

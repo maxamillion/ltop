@@ -5,19 +5,19 @@ import (
 )
 
 type CPUMetrics struct {
-	Usage       float64             `json:"usage"`
-	LoadAverage [3]float64          `json:"load_average"`
-	Cores       []CPUCoreMetrics    `json:"cores"`
-	Frequency   map[string]uint64   `json:"frequency"`
-	Temperature float64             `json:"temperature"`
-	Times       CPUTimes            `json:"times"`
-	Timestamp   time.Time           `json:"timestamp"`
+	Usage       float64           `json:"usage"`
+	LoadAverage [3]float64        `json:"load_average"`
+	Cores       []CPUCoreMetrics  `json:"cores"`
+	Frequency   map[string]uint64 `json:"frequency"`
+	Temperature float64           `json:"temperature"`
+	Times       CPUTimes          `json:"times"`
+	Timestamp   time.Time         `json:"timestamp"`
 }
 
 type CPUCoreMetrics struct {
-	ID     int     `json:"id"`
-	Usage  float64 `json:"usage"`
-	Times  CPUTimes `json:"times"`
+	ID    int      `json:"id"`
+	Usage float64  `json:"usage"`
+	Times CPUTimes `json:"times"`
 }
 
 type CPUTimes struct {
@@ -34,17 +34,17 @@ type CPUTimes struct {
 }
 
 type MemoryMetrics struct {
-	Total       uint64               `json:"total"`
-	Free        uint64               `json:"free"`
-	Available   uint64               `json:"available"`
-	Used        uint64               `json:"used"`
-	UsedPercent float64              `json:"used_percent"`
-	Cached      uint64               `json:"cached"`
-	Buffers     uint64               `json:"buffers"`
-	Shared      uint64               `json:"shared"`
-	Swap        SwapMetrics          `json:"swap"`
-	Details     map[string]uint64    `json:"details"`
-	Timestamp   time.Time            `json:"timestamp"`
+	Total       uint64            `json:"total"`
+	Free        uint64            `json:"free"`
+	Available   uint64            `json:"available"`
+	Used        uint64            `json:"used"`
+	UsedPercent float64           `json:"used_percent"`
+	Cached      uint64            `json:"cached"`
+	Buffers     uint64            `json:"buffers"`
+	Shared      uint64            `json:"shared"`
+	Swap        SwapMetrics       `json:"swap"`
+	Details     map[string]uint64 `json:"details"`
+	Timestamp   time.Time         `json:"timestamp"`
 }
 
 type SwapMetrics struct {
@@ -83,23 +83,23 @@ type DiskMetrics struct {
 }
 
 type DiskIOMetrics struct {
-	Device          string  `json:"device"`
-	ReadIOs         uint64  `json:"read_ios"`
-	ReadMerged      uint64  `json:"read_merged"`
-	ReadSectors     uint64  `json:"read_sectors"`
-	ReadTicks       uint64  `json:"read_ticks"`
-	WriteIOs        uint64  `json:"write_ios"`
-	WriteMerged     uint64  `json:"write_merged"`
-	WriteSectors    uint64  `json:"write_sectors"`
-	WriteTicks      uint64  `json:"write_ticks"`
-	InFlight        uint64  `json:"in_flight"`
-	IOTicks         uint64  `json:"io_ticks"`
-	TimeInQueue     uint64  `json:"time_in_queue"`
-	ReadBytesPerSec float64 `json:"read_bytes_per_sec"`
+	Device           string  `json:"device"`
+	ReadIOs          uint64  `json:"read_ios"`
+	ReadMerged       uint64  `json:"read_merged"`
+	ReadSectors      uint64  `json:"read_sectors"`
+	ReadTicks        uint64  `json:"read_ticks"`
+	WriteIOs         uint64  `json:"write_ios"`
+	WriteMerged      uint64  `json:"write_merged"`
+	WriteSectors     uint64  `json:"write_sectors"`
+	WriteTicks       uint64  `json:"write_ticks"`
+	InFlight         uint64  `json:"in_flight"`
+	IOTicks          uint64  `json:"io_ticks"`
+	TimeInQueue      uint64  `json:"time_in_queue"`
+	ReadBytesPerSec  float64 `json:"read_bytes_per_sec"`
 	WriteBytesPerSec float64 `json:"write_bytes_per_sec"`
-	IOPSRead        float64 `json:"iops_read"`
-	IOPSWrite       float64 `json:"iops_write"`
-	IOWaitPercent   float64 `json:"iowait_percent"`
+	IOPSRead         float64 `json:"iops_read"`
+	IOPSWrite        float64 `json:"iops_write"`
+	IOWaitPercent    float64 `json:"iowait_percent"`
 }
 
 type NetworkMetrics struct {
@@ -136,25 +136,25 @@ type ProcessMetrics struct {
 }
 
 type Process struct {
-	PID          int                `json:"pid"`
-	PPID         int                `json:"ppid"`
-	Name         string             `json:"name"`
-	Command      string             `json:"command"`
-	State        string             `json:"state"`
-	CPUPercent   float64            `json:"cpu_percent"`
-	CPUTime      time.Duration      `json:"cpu_time"`
-	MemoryRSS    uint64             `json:"memory_rss"`
-	MemoryVMS    uint64             `json:"memory_vms"`
-	MemoryPercent float64           `json:"memory_percent"`
-	Priority     int                `json:"priority"`
-	Nice         int                `json:"nice"`
-	NumThreads   int                `json:"num_threads"`
-	NumFDs       int                `json:"num_fds"`
-	CreateTime   time.Time          `json:"create_time"`
-	User         string             `json:"user"`
-	Group        string             `json:"group"`
-	IOStats      ProcessIOStats     `json:"io_stats"`
-	Children     []int              `json:"children"`
+	PID           int            `json:"pid"`
+	PPID          int            `json:"ppid"`
+	Name          string         `json:"name"`
+	Command       string         `json:"command"`
+	State         string         `json:"state"`
+	CPUPercent    float64        `json:"cpu_percent"`
+	CPUTime       time.Duration  `json:"cpu_time"`
+	MemoryRSS     uint64         `json:"memory_rss"`
+	MemoryVMS     uint64         `json:"memory_vms"`
+	MemoryPercent float64        `json:"memory_percent"`
+	Priority      int            `json:"priority"`
+	Nice          int            `json:"nice"`
+	NumThreads    int            `json:"num_threads"`
+	NumFDs        int            `json:"num_fds"`
+	CreateTime    time.Time      `json:"create_time"`
+	User          string         `json:"user"`
+	Group         string         `json:"group"`
+	IOStats       ProcessIOStats `json:"io_stats"`
+	Children      []int          `json:"children"`
 }
 
 type ProcessIOStats struct {
@@ -182,27 +182,27 @@ type LogMetrics struct {
 }
 
 type SystemOverview struct {
-	Hostname    string         `json:"hostname"`
-	Uptime      time.Duration  `json:"uptime"`
-	BootTime    time.Time      `json:"boot_time"`
-	OS          string         `json:"os"`
-	Platform    string         `json:"platform"`
-	Kernel      string         `json:"kernel"`
+	Hostname     string        `json:"hostname"`
+	Uptime       time.Duration `json:"uptime"`
+	BootTime     time.Time     `json:"boot_time"`
+	OS           string        `json:"os"`
+	Platform     string        `json:"platform"`
+	Kernel       string        `json:"kernel"`
 	Architecture string        `json:"architecture"`
-	CPUModel    string         `json:"cpu_model"`
-	CPUCores    int            `json:"cpu_cores"`
-	TotalMemory uint64         `json:"total_memory"`
-	CurrentUser string         `json:"current_user"`
-	LoadAvg     [3]float64     `json:"load_avg"`
+	CPUModel     string        `json:"cpu_model"`
+	CPUCores     int           `json:"cpu_cores"`
+	TotalMemory  uint64        `json:"total_memory"`
+	CurrentUser  string        `json:"current_user"`
+	LoadAvg      [3]float64    `json:"load_avg"`
 }
 
 type MetricsSnapshot struct {
-	Overview SystemOverview `json:"overview"`
-	CPU      CPUMetrics     `json:"cpu"`
-	Memory   MemoryMetrics  `json:"memory"`
-	Storage  StorageMetrics `json:"storage"`
-	Network  NetworkMetrics `json:"network"`
+	Overview  SystemOverview `json:"overview"`
+	CPU       CPUMetrics     `json:"cpu"`
+	Memory    MemoryMetrics  `json:"memory"`
+	Storage   StorageMetrics `json:"storage"`
+	Network   NetworkMetrics `json:"network"`
 	Processes ProcessMetrics `json:"processes"`
-	Logs     LogMetrics     `json:"logs"`
-	Timestamp time.Time     `json:"timestamp"`
+	Logs      LogMetrics     `json:"logs"`
+	Timestamp time.Time      `json:"timestamp"`
 }

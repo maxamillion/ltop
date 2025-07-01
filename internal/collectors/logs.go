@@ -13,9 +13,9 @@ import (
 )
 
 type LogCollector struct {
-	sources      []string
-	maxEntries   int
-	lastEntries  map[string]time.Time
+	sources       []string
+	maxEntries    int
+	lastEntries   map[string]time.Time
 	logLevelRegex *regexp.Regexp
 }
 
@@ -72,11 +72,11 @@ func (l *LogCollector) collectFromFile(filename string) ([]models.LogEntry, erro
 	if err != nil {
 		return nil, err
 	}
-	defer file.Close()
+	defer func() { _ = file.Close() }()
 
 	entries := make([]models.LogEntry, 0)
 	scanner := bufio.NewScanner(file)
-	
+
 	lines := make([]string, 0)
 	for scanner.Scan() {
 		lines = append(lines, scanner.Text())
@@ -144,8 +144,13 @@ func (l *LogCollector) parseJournalLine(line string) models.LogEntry {
 		return entry
 	}
 
-	timestampStr := parts[0] + " " + parts[1]
-	if timestamp, err := time.Parse("2006-01-02T15:04:05-0700", timestampStr); err == nil {
+	// The timestamp is only the first part, parts[1] is the hostname
+	timestampStr := parts[0]
+	if timestamp, err := time.Parse("2006-01-02T15:04:05-07:00", timestampStr); err == nil {
+		entry.Timestamp = timestamp
+	} else if timestamp, err := time.Parse("2006-01-02T15:04:05+00:00", timestampStr); err == nil {
+		entry.Timestamp = timestamp
+	} else if timestamp, err := time.Parse("2006-01-02T15:04:05-0700", timestampStr); err == nil {
 		entry.Timestamp = timestamp
 	} else if timestamp, err := time.Parse("2006-01-02T15:04:05+0000", timestampStr); err == nil {
 		entry.Timestamp = timestamp
@@ -184,7 +189,7 @@ func (l *LogCollector) extractTimestamp(line string) time.Time {
 
 func (l *LogCollector) extractLogLevel(message string) string {
 	message = strings.ToLower(message)
-	
+
 	matches := l.logLevelRegex.FindStringSubmatch(message)
 	if len(matches) > 1 {
 		level := strings.ToLower(matches[1])
@@ -224,7 +229,7 @@ func (l *LogCollector) extractService(line string) string {
 	if strings.Contains(line, "NetworkManager") {
 		return "NetworkManager"
 	}
-	
+
 	words := strings.Fields(line)
 	if len(words) > 3 {
 		for _, word := range words[3:6] {
@@ -236,7 +241,7 @@ func (l *LogCollector) extractService(line string) string {
 			}
 		}
 	}
-	
+
 	return "system"
 }
 
@@ -259,7 +264,7 @@ func (l *LogCollector) sortAndLimitEntries(entries *[]models.LogEntry) {
 	if len(sorted) > l.maxEntries {
 		sorted = sorted[:l.maxEntries]
 	}
-	
+
 	*entries = sorted
 }
 

@@ -21,7 +21,7 @@ type LogView struct {
 func NewLogView() *LogView {
 	headers := []string{"TIME", "LEVEL", "SOURCE", "MESSAGE"}
 	table := components.NewTable(headers)
-	
+
 	return &LogView{
 		table:       table,
 		filterLevel: "",
@@ -54,7 +54,7 @@ func (lv *LogView) Render(snapshot *models.MetricsSnapshot, width, height int) s
 	}
 
 	var content strings.Builder
-	
+
 	content.WriteString(lv.renderLogSummary(snapshot.Logs))
 	content.WriteString("\n\n")
 	content.WriteString(lv.renderFilters())
@@ -88,14 +88,14 @@ func (lv *LogView) renderLogSummary(logs models.LogMetrics) string {
 
 func (lv *LogView) renderFilters() string {
 	var filters []string
-	
+
 	if lv.filterLevel != "" {
 		filters = append(filters, fmt.Sprintf("Level: %s", lv.filterLevel))
 	}
 	if lv.filterSource != "" {
 		filters = append(filters, fmt.Sprintf("Source: %s", lv.filterSource))
 	}
-	
+
 	scrollStatus := "Manual"
 	if lv.autoScroll {
 		scrollStatus = "Auto"

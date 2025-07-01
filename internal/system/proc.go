@@ -30,7 +30,7 @@ func (p *ProcReader) ReadLines(path string) ([]string, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer file.Close()
+	defer func() { _ = file.Close() }()
 
 	var lines []string
 	scanner := bufio.NewScanner(file)
@@ -46,7 +46,7 @@ func (p *ProcReader) ReadFirstLine(path string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	defer file.Close()
+	defer func() { _ = file.Close() }()
 
 	scanner := bufio.NewScanner(file)
 	if scanner.Scan() {
@@ -119,7 +119,7 @@ func (p *ProcReader) ReadProcessCmdline(pid string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	
+
 	cmdline := string(data)
 	cmdline = strings.ReplaceAll(cmdline, "\x00", " ")
 	return strings.TrimSpace(cmdline), nil

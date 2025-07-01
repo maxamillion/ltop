@@ -120,11 +120,10 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m, nil
 		}
 
-		if m.currentView == models.ViewProcesses {
+		switch m.currentView {
+		case models.ViewProcesses:
 			return m.updateProcessView(msg)
-		}
-
-		if m.currentView == models.ViewLogs {
+		case models.ViewLogs:
 			return m.updateLogView(msg)
 		}
 
@@ -235,20 +234,28 @@ func (m Model) View() string {
 		return m.renderHelp()
 	}
 
-	var content string
 	snapshot := m.app.GetLastSnapshot()
-	
-	if snapshot == nil {
-		content = "Collecting system metrics..."
-	} else {
-		content = m.renderView(snapshot)
-	}
-
 	header := m.renderHeader(snapshot)
 	footer := m.renderFooter()
-	
-	contentHeight := m.height - lipgloss.Height(header) - lipgloss.Height(footer) - 2
-	content = m.fitContent(content, contentHeight)
+
+	headerHeight := lipgloss.Height(header)
+	footerHeight := lipgloss.Height(footer)
+	contentHeight := m.height - headerHeight - footerHeight
+	if contentHeight < 0 {
+		contentHeight = 0
+	}
+
+	var content string
+	if snapshot == nil {
+		content = lipgloss.NewStyle().
+			Height(contentHeight).
+			Width(m.width).
+			Align(lipgloss.Center, lipgloss.Center).
+			Render("Collecting system metrics...")
+	} else {
+		viewContent := m.renderView(snapshot, contentHeight)
+		content = lipgloss.NewStyle().Height(contentHeight).MaxHeight(contentHeight).Render(viewContent)
+	}
 
 	return lipgloss.JoinVertical(
 		lipgloss.Left,
@@ -260,27 +267,27 @@ func (m Model) View() string {
 
 func (m Model) renderHeader(snapshot *models.MetricsSnapshot) string {
 	title := "ltop - Linux System Monitor"
-	
+
 	var status string
 	if snapshot != nil {
 		status = fmt.Sprintf("Last Update: %s | %s",
 			utils.FormatTime(snapshot.Timestamp),
 			snapshot.Overview.Hostname)
-		
+
 		if m.app.GetState().Paused {
 			status += " [PAUSED]"
 		}
 	}
 
 	tabs := m.renderTabs()
-	
+
 	headerContent := lipgloss.JoinHorizontal(
 		lipgloss.Left,
 		styles.Title().Render(title),
 		lipgloss.NewStyle().Margin(0, 2).Render("|"),
 		status,
 	)
-	
+
 	return lipgloss.JoinVertical(
 		lipgloss.Left,
 		headerContent,
@@ -316,22 +323,22 @@ func (m Model) renderTabs() string {
 	return strings.Join(tabStrings, " ")
 }
 
-func (m Model) renderView(snapshot *models.MetricsSnapshot) string {
+func (m Model) renderView(snapshot *models.MetricsSnapshot, height int) string {
 	switch m.currentView {
 	case models.ViewOverview:
-		return m.overviewView.Render(snapshot, m.width, m.height-6)
+		return m.overviewView.Render(snapshot, m.width, height)
 	case models.ViewCPU:
-		return m.cpuView.Render(snapshot, m.width, m.height-6)
+		return m.cpuView.Render(snapshot, m.width, height)
 	case models.ViewMemory:
-		return m.memoryView.Render(snapshot, m.width, m.height-6)
+		return m.memoryView.Render(snapshot, m.width, height)
 	case models.ViewStorage:
-		return m.storageView.Render(snapshot, m.width, m.height-6)
+		return m.storageView.Render(snapshot, m.width, height)
 	case models.ViewNetwork:
-		return m.networkView.Render(snapshot, m.width, m.height-6)
+		return m.networkView.Render(snapshot, m.width, height)
 	case models.ViewProcesses:
-		return m.processView.Render(snapshot, m.width, m.height-6)
+		return m.processView.Render(snapshot, m.width, height)
 	case models.ViewLogs:
-		return m.logView.Render(snapshot, m.width, m.height-6)
+		return m.logView.Render(snapshot, m.width, height)
 	default:
 		return "Unknown view"
 	}
@@ -339,9 +346,10 @@ func (m Model) renderView(snapshot *models.MetricsSnapshot) string {
 
 func (m Model) renderFooter() string {
 	helpText := "Press 'h' for help, 'q' to quit, 'p' to pause, or 1-7 to switch views"
-	if m.currentView == models.ViewLogs {
+	switch m.currentView {
+	case models.ViewLogs:
 		helpText = "Logs: a=auto-scroll, c=clear filters, e/w/i=filter by error/warn/info"
-	} else if m.currentView == models.ViewProcesses {
+	case models.ViewProcesses:
 		if m.processView.IsDialogActive() {
 			helpText = "Dialog: Enter=confirm, Esc=cancel, ←→=navigate"
 		} else if m.processView.IsSearching() {
@@ -414,12 +422,4 @@ Press 'h' again to return to the monitoring view.
 		Width(m.width - 4).
 		Height(m.height - 4).
 		Render(help)
-}
-
-func (m Model) fitContent(content string, maxHeight int) string {
-	lines := strings.Split(content, "\n")
-	if len(lines) <= maxHeight {
-		return content
-	}
-	return strings.Join(lines[:maxHeight], "\n")
 }

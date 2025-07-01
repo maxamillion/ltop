@@ -8,7 +8,7 @@ import (
 func TestLogCollector(t *testing.T) {
 	sources := []string{"/var/log/syslog", "/var/log/messages"}
 	maxEntries := 100
-	
+
 	collector := NewLogCollector(sources, maxEntries)
 	if collector == nil {
 		t.Fatal("NewLogCollector returned nil")
@@ -51,7 +51,7 @@ func TestLogParsing(t *testing.T) {
 func TestLogFiltering(t *testing.T) {
 	sources := []string{"/var/log/syslog"}
 	collector := NewLogCollector(sources, 50)
-	
+
 	// Simple test for log filtering functionality
 	if collector == nil {
 		t.Error("Log collector should not be nil")

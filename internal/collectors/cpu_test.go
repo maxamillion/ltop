@@ -47,7 +47,7 @@ func TestCPUCollector(t *testing.T) {
 
 func TestCPUCalculation(t *testing.T) {
 	collector := NewCPUCollector()
-	
+
 	prev := models.CPUTimes{
 		User:   1000,
 		Nice:   100,
@@ -55,7 +55,7 @@ func TestCPUCalculation(t *testing.T) {
 		Idle:   8000,
 		IOWait: 400,
 	}
-	
+
 	curr := models.CPUTimes{
 		User:   1100,
 		Nice:   100,
@@ -63,13 +63,13 @@ func TestCPUCalculation(t *testing.T) {
 		Idle:   8200,
 		IOWait: 500,
 	}
-	
+
 	usage := collector.calculateCPUUsage(prev, curr)
-	
+
 	if usage < 0 || usage > 100 {
 		t.Errorf("Invalid CPU usage calculation: %f", usage)
 	}
-	
+
 	// Total delta = 500, idle delta (idle + iowait) = 300, so non-idle = 200
 	// Usage should be 200/500 = 40%
 	expectedUsage := 40.0

@@ -1,8 +1,8 @@
 package styles
 
 import (
-	"github.com/charmbracelet/lipgloss"
 	"github.com/admiller/ltop/internal/models"
+	"github.com/charmbracelet/lipgloss"
 )
 
 var (

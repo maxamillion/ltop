@@ -42,9 +42,9 @@ func TestGaugeRender(t *testing.T) {
 
 	// Test edge cases that could cause panic
 	testCases := []struct {
-		value    float64
-		width    int
-		name     string
+		value float64
+		width int
+		name  string
 	}{
 		{100.0, 1, "100% with width 1"},
 		{99.9, 1, "99.9% with width 1"},
@@ -72,7 +72,7 @@ func TestGaugeRender(t *testing.T) {
 func TestGaugeRenderNoPanic(t *testing.T) {
 	// This test specifically targets the original panic condition
 	// where filled > width could cause empty to be negative
-	
+
 	// Create scenarios that could trigger the bug
 	testCases := []struct {
 		width int
@@ -92,27 +92,27 @@ func TestGaugeRenderNoPanic(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			gauge := NewGauge(tc.width)
-			
+
 			// Calculate what the original buggy code would do
 			filled := int((tc.value / 100.0) * float64(tc.width))
 			empty := tc.width - filled
-			
+
 			// This should not panic even if empty would be negative
 			result := gauge.Render(tc.value, "test")
-			
+
 			// Verify the result makes sense
 			if result == "" {
 				t.Errorf("Render returned empty string for %s", tc.name)
 			}
-			
+
 			// Check that the result doesn't contain negative repeat artifacts
 			if strings.Contains(result, "strings.Repeat") {
 				t.Errorf("Result contains error text, likely from panic recovery: %s", result)
 			}
-			
+
 			// If this was the problematic case, log it for debugging
 			if empty < 0 {
-				t.Logf("Case %s would have caused panic: filled=%d, empty=%d, width=%d", 
+				t.Logf("Case %s would have caused panic: filled=%d, empty=%d, width=%d",
 					tc.name, filled, empty, tc.width)
 			}
 		})
@@ -121,14 +121,14 @@ func TestGaugeRenderNoPanic(t *testing.T) {
 
 func TestGaugeRenderWithColors(t *testing.T) {
 	gauge := NewGauge(10)
-	
+
 	lowColor := lipgloss.NewStyle().Foreground(lipgloss.Color("#00FF00"))
 	midColor := lipgloss.NewStyle().Foreground(lipgloss.Color("#FFFF00"))
 	highColor := lipgloss.NewStyle().Foreground(lipgloss.Color("#FF0000"))
 
 	// Test the same edge cases for RenderWithColors
 	testCases := []float64{0.0, 33.33, 50.0, 66.67, 99.9, 100.0, -10.0, 110.0}
-	
+
 	for _, value := range testCases {
 		t.Run(fmt.Sprintf("value_%.1f", value), func(t *testing.T) {
 			// This should not panic
@@ -165,7 +165,7 @@ func TestNewMultiGauge(t *testing.T) {
 
 func TestMultiGaugeRender(t *testing.T) {
 	mg := NewMultiGauge(10)
-	
+
 	// Test empty gauge (total=0 should return empty bar characters)
 	result := mg.Render(0)
 	// Check that it contains the expected number of empty characters
@@ -178,10 +178,9 @@ func TestMultiGaugeRender(t *testing.T) {
 	color := lipgloss.NewStyle().Foreground(lipgloss.Color("#00FF00"))
 	mg.AddSegment(30, "test", color)
 	mg.AddSegment(20, "test2", color)
-	
+
 	result = mg.Render(100)
 	if result == "" {
 		t.Error("MultiGauge render should not return empty string")
 	}
 }
-

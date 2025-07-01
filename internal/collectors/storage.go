@@ -11,10 +11,10 @@ import (
 )
 
 type StorageCollector struct {
-	procReader     *system.ProcReader
-	sysReader      *system.SysReader
-	lastDiskStats  map[string]models.DiskIOMetrics
-	lastUpdate     time.Time
+	procReader    *system.ProcReader
+	sysReader     *system.SysReader
+	lastDiskStats map[string]models.DiskIOMetrics
+	lastUpdate    time.Time
 }
 
 func NewStorageCollector() *StorageCollector {
@@ -100,21 +100,21 @@ func (s *StorageCollector) shouldIncludeFilesystem(device, mountpoint, fstype st
 	if strings.HasPrefix(device, "/dev/loop") {
 		return false
 	}
-	
+
 	if strings.HasPrefix(mountpoint, "/proc") ||
 		strings.HasPrefix(mountpoint, "/sys") ||
 		strings.HasPrefix(mountpoint, "/dev") ||
 		strings.HasPrefix(mountpoint, "/run") {
 		return false
 	}
-	
+
 	excludedFSTypes := []string{"tmpfs", "devtmpfs", "sysfs", "proc", "devpts", "cgroup", "cgroup2", "pstore", "bpf", "tracefs"}
 	for _, excluded := range excludedFSTypes {
 		if fstype == excluded {
 			return false
 		}
 	}
-	
+
 	return true
 }
 
@@ -135,7 +135,7 @@ func (s *StorageCollector) collectDiskStats(metrics *models.StorageMetrics) erro
 		}
 
 		device := fields[2]
-		
+
 		if !s.shouldIncludeDisk(device) {
 			continue
 		}
@@ -164,18 +164,18 @@ func (s *StorageCollector) shouldIncludeDisk(device string) bool {
 	if len(device) < 2 {
 		return false
 	}
-	
+
 	if strings.HasPrefix(device, "loop") ||
 		strings.HasPrefix(device, "ram") ||
 		strings.HasPrefix(device, "dm-") {
 		return false
 	}
-	
+
 	lastChar := device[len(device)-1]
 	if lastChar >= '0' && lastChar <= '9' {
 		return false
 	}
-	
+
 	return true
 }
 

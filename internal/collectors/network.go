@@ -11,10 +11,10 @@ import (
 )
 
 type NetworkCollector struct {
-	procReader        *system.ProcReader
-	sysReader         *system.SysReader
+	procReader         *system.ProcReader
+	sysReader          *system.SysReader
 	lastInterfaceStats map[string]models.NetworkInterface
-	lastUpdate        time.Time
+	lastUpdate         time.Time
 }
 
 func NewNetworkCollector() *NetworkCollector {
@@ -88,7 +88,7 @@ func (n *NetworkCollector) parseNetworkLine(line string) (models.NetworkInterfac
 	}
 
 	iface.Name = strings.TrimSpace(parts[0])
-	
+
 	fields := strings.Fields(parts[1])
 	if len(fields) < 16 {
 		return iface, fmt.Errorf("insufficient network fields")
@@ -128,14 +128,14 @@ func (n *NetworkCollector) shouldIncludeInterface(name string) bool {
 	if name == "lo" {
 		return false
 	}
-	
+
 	excludePrefixes := []string{"docker", "br-", "veth", "virbr", "tap"}
 	for _, prefix := range excludePrefixes {
 		if strings.HasPrefix(name, prefix) {
 			return false
 		}
 	}
-	
+
 	return true
 }
 

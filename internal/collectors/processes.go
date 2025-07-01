@@ -209,7 +209,7 @@ func (p *ProcessCollector) collectProcessCmdline(pid string, process *models.Pro
 
 func (p *ProcessCollector) calculateCPUPercent(process *models.Process, totalCPU uint64) {
 	cpuTime := uint64(process.CPUTime / time.Millisecond)
-	
+
 	lastCPUTime, exists := p.lastCPUTimes[process.PID]
 	if !exists {
 		p.lastCPUTimes[process.PID] = cpuTime

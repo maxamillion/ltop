@@ -29,7 +29,7 @@ type App struct {
 func New() *App {
 	ctx, cancel := context.WithCancel(context.Background())
 	config := models.DefaultSystemConfig()
-	
+
 	return &App{
 		config:           config,
 		state:            models.AppState{},
@@ -129,12 +129,12 @@ func (a *App) CollectMetrics() error {
 
 func (a *App) collectSystemOverview(snapshot *models.MetricsSnapshot) error {
 	hostname, _ := os.Hostname()
-	
+
 	snapshot.Overview = models.SystemOverview{
 		Hostname:    hostname,
 		CurrentUser: os.Getenv("USER"),
 	}
-	
+
 	return nil
 }
 

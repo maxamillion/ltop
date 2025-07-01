@@ -66,7 +66,7 @@ func (c *CPUCollector) collectCPUStats(metrics *models.CPUMetrics) error {
 				continue
 			}
 			totalTimes = times
-			
+
 			lastTimes, exists := c.lastCPUTimes[-1]
 			if exists {
 				metrics.Usage = c.calculateCPUUsage(lastTimes, times)

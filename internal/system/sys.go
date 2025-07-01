@@ -110,12 +110,12 @@ func (s *SysReader) ReadNetworkOperState(iface string) (string, error) {
 
 func (s *SysReader) ReadMemoryInfo() (map[string]string, error) {
 	result := make(map[string]string)
-	
+
 	memInfo := []string{
 		"kernel/mm/transparent_hugepage/enabled",
 		"kernel/mm/ksm/run",
 	}
-	
+
 	for _, path := range memInfo {
 		if s.FileExists(path) {
 			value, err := s.ReadString(path)
@@ -124,18 +124,18 @@ func (s *SysReader) ReadMemoryInfo() (map[string]string, error) {
 			}
 		}
 	}
-	
+
 	return result, nil
 }
 
 func (s *SysReader) ReadPowerSupplyInfo() (map[string]string, error) {
 	result := make(map[string]string)
-	
+
 	supplies, err := s.ListDir("class/power_supply")
 	if err != nil {
 		return result, nil
 	}
-	
+
 	for _, supply := range supplies {
 		for _, prop := range []string{"capacity", "status", "present"} {
 			path := fmt.Sprintf("class/power_supply/%s/%s", supply, prop)
@@ -148,6 +148,6 @@ func (s *SysReader) ReadPowerSupplyInfo() (map[string]string, error) {
 			}
 		}
 	}
-	
+
 	return result, nil
 }

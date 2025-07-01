@@ -31,7 +31,7 @@ func NewProcessView() *ProcessView {
 	searchInput := components.NewTextInput("Search processes...", 40)
 	confirmDialog := components.NewConfirmDialog("Confirm Action", "")
 	inputDialog := components.NewInputDialog("Process Management", "", "")
-	
+
 	return &ProcessView{
 		table:         table,
 		searchInput:   searchInput,
@@ -76,7 +76,7 @@ func (pv *ProcessView) Render(snapshot *models.MetricsSnapshot, width, height in
 	}
 
 	var content strings.Builder
-	
+
 	if pv.searchMode {
 		content.WriteString("Search: ")
 		content.WriteString(pv.searchInput.Render())
@@ -131,7 +131,7 @@ func (pv *ProcessView) renderProcessSummary(filtered, total int) string {
 		summary = styles.Info().Render(
 			fmt.Sprintf("Showing %d processes", total))
 	}
-	
+
 	sortInfo := fmt.Sprintf("Sort: %s (%s)", pv.sortField, pv.sortOrder)
 	return summary + " | " + styles.Muted().Render(sortInfo)
 }

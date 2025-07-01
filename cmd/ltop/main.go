@@ -7,11 +7,11 @@ import (
 	"strings"
 	"time"
 
-	tea "github.com/charmbracelet/bubbletea"
 	"github.com/admiller/ltop/internal/app"
 	"github.com/admiller/ltop/internal/models"
 	"github.com/admiller/ltop/internal/ui/views"
 	"github.com/admiller/ltop/pkg/utils"
+	tea "github.com/charmbracelet/bubbletea"
 )
 
 const (
@@ -90,11 +90,11 @@ func printHelp() {
 
 func runDemo(ltopApp *app.App) {
 	fmt.Printf("=== %s Demo Mode ===\n\n", AppName)
-	
+
 	go func() {
 		ticker := time.NewTicker(time.Second)
 		defer ticker.Stop()
-		
+
 		for i := 0; i < 10; i++ {
 			if err := ltopApp.CollectMetrics(); err != nil {
 				log.Printf("Metrics collection failed: %v", err)
@@ -102,9 +102,9 @@ func runDemo(ltopApp *app.App) {
 			<-ticker.C
 		}
 	}()
-	
+
 	time.Sleep(2 * time.Second)
-	
+
 	for i := 0; i < 3; i++ {
 		snapshot := ltopApp.GetLastSnapshot()
 		if snapshot == nil {
@@ -127,10 +127,10 @@ func printSystemInfo(snapshot *models.MetricsSnapshot) {
 	fmt.Printf("Uptime: %s\n", utils.FormatUptime(snapshot.Overview.Uptime))
 	fmt.Println()
 
-	fmt.Printf("CPU Usage: %s | Load: %s\n", 
+	fmt.Printf("CPU Usage: %s | Load: %s\n",
 		utils.FormatPercent(snapshot.CPU.Usage),
 		utils.FormatLoadAverage(snapshot.CPU.LoadAverage))
-	
+
 	if snapshot.CPU.Temperature != 0 {
 		fmt.Printf("CPU Temperature: %s\n", utils.FormatTemperature(snapshot.CPU.Temperature))
 	}
@@ -140,7 +140,7 @@ func printSystemInfo(snapshot *models.MetricsSnapshot) {
 		utils.FormatBytes(snapshot.Memory.Used),
 		utils.FormatBytes(snapshot.Memory.Total),
 		utils.FormatPercent(snapshot.Memory.UsedPercent))
-	
+
 	if snapshot.Memory.Swap.Total > 0 {
 		fmt.Printf("Swap: %s / %s (%s)\n",
 			utils.FormatBytes(snapshot.Memory.Swap.Used),
@@ -181,12 +181,12 @@ func printSystemInfo(snapshot *models.MetricsSnapshot) {
 	if len(snapshot.Processes.Processes) > 0 {
 		fmt.Println("\nTop 5 Processes by CPU:")
 		fmt.Printf("%-8s %-20s %-10s %-10s %s\n", "PID", "NAME", "CPU%", "MEMORY", "COMMAND")
-		
+
 		count := 5
 		if len(snapshot.Processes.Processes) < count {
 			count = len(snapshot.Processes.Processes)
 		}
-		
+
 		for i := 0; i < count; i++ {
 			proc := snapshot.Processes.Processes[i]
 			fmt.Printf("%-8d %-20s %-10s %-10s %s\n",
@@ -201,7 +201,7 @@ func printSystemInfo(snapshot *models.MetricsSnapshot) {
 
 func runTUI(ltopApp *app.App) error {
 	model := views.NewModel(ltopApp)
-	
+
 	p := tea.NewProgram(
 		model,
 		tea.WithAltScreen(),

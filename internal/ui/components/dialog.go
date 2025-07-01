@@ -70,9 +70,7 @@ func (cd *ConfirmDialog) Render() string {
 	content = append(content, "")
 
 	messageLines := cd.wrapText(cd.Message, cd.Width-4)
-	for _, line := range messageLines {
-		content = append(content, line)
-	}
+	content = append(content, messageLines...)
 
 	content = append(content, "")
 
@@ -196,9 +194,7 @@ func (id *InputDialog) Render() string {
 	content = append(content, "")
 
 	messageLines := strings.Split(id.Message, "\n")
-	for _, line := range messageLines {
-		content = append(content, line)
-	}
+	content = append(content, messageLines...)
 
 	content = append(content, "")
 	content = append(content, "Input: "+id.Input.Render())

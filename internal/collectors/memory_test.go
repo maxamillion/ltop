@@ -56,11 +56,11 @@ func TestMemoryCalculation(t *testing.T) {
 		{1000, 0, 0.0},
 		{1000, 1000, 100.0},
 	}
-	
+
 	for _, tc := range testCases {
 		percentage := float64(tc.used) / float64(tc.total) * 100.0
 		if abs(percentage-tc.expected) > 0.01 {
-			t.Errorf("Memory percentage calculation incorrect. Total: %d, Used: %d, Expected: %f, Got: %f", 
+			t.Errorf("Memory percentage calculation incorrect. Total: %d, Used: %d, Expected: %f, Got: %f",
 				tc.total, tc.used, tc.expected, percentage)
 		}
 	}

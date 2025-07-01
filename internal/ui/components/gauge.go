@@ -4,16 +4,16 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/charmbracelet/lipgloss"
 	"github.com/admiller/ltop/internal/ui/styles"
+	"github.com/charmbracelet/lipgloss"
 )
 
 type Gauge struct {
-	Width      int
-	ShowValue  bool
-	ShowLabel  bool
-	BarChar    string
-	EmptyChar  string
+	Width     int
+	ShowValue bool
+	ShowLabel bool
+	BarChar   string
+	EmptyChar string
 }
 
 func NewGauge(width int) *Gauge {
@@ -73,7 +73,7 @@ func (g *Gauge) RenderBytes(used, total uint64, label string) string {
 	if total == 0 {
 		return g.Render(0, label)
 	}
-	
+
 	percentage := float64(used) / float64(total) * 100.0
 	return g.Render(percentage, label)
 }
@@ -168,12 +168,12 @@ func (mg *MultiGauge) Render(total uint64) string {
 
 	var result strings.Builder
 	remaining := mg.Width
-	
+
 	for _, segment := range mg.Segments {
 		if remaining <= 0 {
 			break
 		}
-		
+
 		segmentWidth := int(float64(segment.Value) / float64(total) * float64(mg.Width))
 		if segmentWidth < 0 {
 			segmentWidth = 0
@@ -181,18 +181,18 @@ func (mg *MultiGauge) Render(total uint64) string {
 		if segmentWidth > remaining {
 			segmentWidth = remaining
 		}
-		
+
 		if segmentWidth > 0 {
 			segmentBar := strings.Repeat("█", segmentWidth)
 			result.WriteString(segment.Color.Render(segmentBar))
 			remaining -= segmentWidth
 		}
 	}
-	
+
 	if remaining > 0 {
 		result.WriteString(strings.Repeat("░", remaining))
 	}
-	
+
 	return result.String()
 }
 

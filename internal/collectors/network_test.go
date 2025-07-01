@@ -38,12 +38,12 @@ func TestNetworkBandwidthCalculation(t *testing.T) {
 	prev := uint64(1000)
 	curr := uint64(2000)
 	duration := time.Second
-	
+
 	// Manual calculation
 	if curr > prev && duration > 0 {
 		bandwidth := (curr - prev) / uint64(duration.Seconds())
 		expected := uint64(1000)
-		
+
 		if bandwidth != expected {
 			t.Errorf("Bandwidth calculation incorrect. Expected: %d, Got: %d", expected, bandwidth)
 		}

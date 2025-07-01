@@ -4,7 +4,7 @@ import (
 	"math"
 	"strings"
 	"testing"
-	
+
 	"github.com/charmbracelet/lipgloss"
 )
 
@@ -21,12 +21,12 @@ func TestGaugeWithNegativeValues(t *testing.T) {
 		{width: -1, value: 50.0, desc: "negative width"},
 		{width: 1, value: -50.0, desc: "negative value"},
 		{width: -5, value: -25.0, desc: "both negative"},
-		
+
 		// Extreme floating point values
 		{width: 1, value: math.Inf(1), desc: "positive infinity"},
 		{width: 1, value: math.Inf(-1), desc: "negative infinity"},
 		{width: 1, value: math.NaN(), desc: "NaN value"},
-		
+
 		// Very large values that could overflow
 		{width: 1, value: 1e10, desc: "very large value"},
 		{width: 1, value: -1e10, desc: "very large negative value"},
@@ -40,15 +40,15 @@ func TestGaugeWithNegativeValues(t *testing.T) {
 					t.Errorf("PANIC with %s: %v", tc.desc, r)
 				}
 			}()
-			
+
 			gauge := NewGauge(tc.width)
 			result := gauge.Render(tc.value, "test")
-			
+
 			// Result should not be empty (we should get something reasonable)
 			if result == "" {
 				t.Errorf("Empty result for %s", tc.desc)
 			}
-			
+
 			// Result should not contain obvious error indicators
 			if strings.Contains(result, "panic") || strings.Contains(result, "error") {
 				t.Errorf("Result contains error indicators for %s: %s", tc.desc, result)
@@ -83,23 +83,23 @@ func TestGaugeFilledCalculationEdgeCases(t *testing.T) {
 			}()
 
 			gauge := NewGauge(tc.width)
-			
+
 			// Manually calculate what the old problematic code would do
 			filled := int((tc.value / 100.0) * float64(tc.width))
 			empty := tc.width - filled
-			
-			t.Logf("Testing %s: width=%d, value=%f, calculated filled=%d, empty=%d", 
+
+			t.Logf("Testing %s: width=%d, value=%f, calculated filled=%d, empty=%d",
 				tc.desc, tc.width, tc.value, filled, empty)
-			
+
 			// This should work without panic
 			result := gauge.Render(tc.value, "test")
-			
+
 			if result == "" {
 				t.Errorf("Empty result for %s", tc.desc)
 			}
-			
+
 			if strings.Contains(strings.ToLower(result), tc.expected) {
-				t.Errorf("Result contains unexpected content '%s' for %s: %s", 
+				t.Errorf("Result contains unexpected content '%s' for %s: %s",
 					tc.expected, tc.desc, result)
 			}
 		})
@@ -128,19 +128,18 @@ func TestMultiGaugeEdgeCases(t *testing.T) {
 			}()
 
 			mg := NewMultiGauge(tc.width)
-			
+
 			// Add some segments
 			if tc.total > 0 {
 				mg.AddSegment(tc.total/3, "test1", lipgloss.NewStyle())
 				mg.AddSegment(tc.total/2, "test2", lipgloss.NewStyle())
 			}
-			
+
 			result := mg.Render(tc.total)
-			
+
 			if result == "" && tc.width > 0 {
 				t.Errorf("Unexpected empty result for %s", tc.desc)
 			}
 		})
 	}
 }
-
