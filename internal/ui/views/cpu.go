@@ -29,9 +29,28 @@ func (cv *CPUView) Render(snapshot *models.MetricsSnapshot, width, height int) s
 
 	var sections []string
 
-	sections = append(sections, cv.renderOverallCPU(snapshot))
-	sections = append(sections, cv.renderCPUCores(snapshot))
-	sections = append(sections, cv.renderCPUInfo(snapshot))
+	// Always include overall CPU section (takes ~6 lines)
+	overallSection := cv.renderOverallCPU(snapshot)
+	sections = append(sections, overallSection)
+
+	// Calculate remaining height for cores and info sections
+	// Reserve space for panel padding and section separators
+	usedHeight := strings.Count(overallSection, "\n") + 1 + 4 // +4 for padding and separators
+	remainingHeight := height - usedHeight
+
+	// Include CPU cores section if there's enough space (needs at least 4 lines)
+	if remainingHeight >= 4 {
+		coresSection := cv.renderCPUCores(snapshot, width)
+		sections = append(sections, coresSection)
+		
+		coresHeight := strings.Count(coresSection, "\n") + 1 + 2 // +2 for separator
+		remainingHeight -= coresHeight
+		
+		// Include CPU info section if there's still space (needs at least 6 lines)
+		if remainingHeight >= 6 {
+			sections = append(sections, cv.renderCPUInfo(snapshot))
+		}
+	}
 
 	content := strings.Join(sections, "\n\n")
 	return styles.Panel().Width(width).Height(height).Render(content)
@@ -61,27 +80,92 @@ func (cv *CPUView) renderOverallCPU(snapshot *models.MetricsSnapshot) string {
 	return strings.Join(info, "\n")
 }
 
-func (cv *CPUView) renderCPUCores(snapshot *models.MetricsSnapshot) string {
+func (cv *CPUView) renderCPUCores(snapshot *models.MetricsSnapshot, width int) string {
 	var cores []string
 	cores = append(cores, styles.Title().Render("Per-Core Usage"))
 
+	if len(snapshot.CPU.Cores) == 0 {
+		cores = append(cores, styles.Muted().Render("No core data available"))
+		return strings.Join(cores, "\n")
+	}
+
+	// Calculate optimal number of columns based on terminal width
+	// Each core entry needs about 50 characters (gauge + frequency)
+	minColumnWidth := 50
+	columnSpacing := 3 // Space between columns
+	availableWidth := width - 4 // Account for panel padding
+	
+	numColumns := availableWidth / (minColumnWidth + columnSpacing)
+	if numColumns == 0 {
+		numColumns = 1
+	}
+	if numColumns > len(snapshot.CPU.Cores) {
+		numColumns = len(snapshot.CPU.Cores)
+	}
+
+	// Calculate actual column width for uniform display
+	actualColumnWidth := (availableWidth - (columnSpacing * (numColumns - 1))) / numColumns
+	if actualColumnWidth < 45 {
+		actualColumnWidth = 45 // Minimum readable width
+	}
+
+	// Ensure we have enough gauges for all cores
 	for len(cv.coreGauges) < len(snapshot.CPU.Cores) {
 		cv.coreGauges = append(cv.coreGauges, components.NewGauge(30))
 	}
 
-	for i, core := range snapshot.CPU.Cores {
-		if i < len(cv.coreGauges) {
-			label := fmt.Sprintf("Core %d", core.ID)
-			gauge := cv.coreGauges[i].Render(core.Usage, label)
-			cores = append(cores, gauge)
-
-			if freq, exists := snapshot.CPU.Frequency[fmt.Sprintf("cpu%d", i)]; exists {
-				freqStr := utils.FormatHz(freq)
-				cores = append(cores, fmt.Sprintf("  Frequency: %s", styles.Muted().Render(freqStr)))
+	// Prepare core data organized by rows and columns
+	coresPerColumn := (len(snapshot.CPU.Cores) + numColumns - 1) / numColumns
+	
+	// Build table-like structure with proper alignment
+	var tableRows []string
+	
+	for row := 0; row < coresPerColumn; row++ {
+		var gaugeRow []string
+		var freqRow []string
+		
+		for col := 0; col < numColumns; col++ {
+			coreIndex := col*coresPerColumn + row
+			
+			if coreIndex < len(snapshot.CPU.Cores) {
+				core := snapshot.CPU.Cores[coreIndex]
+				
+				// Create gauge string
+				label := fmt.Sprintf("Core %d", core.ID)
+				gaugeStr := cv.coreGauges[coreIndex].Render(core.Usage, label)
+				gaugeStr = utils.PadString(utils.TruncateString(gaugeStr, actualColumnWidth), actualColumnWidth, ' ')
+				
+				// Create frequency string
+				freqStr := ""
+				if freq, exists := snapshot.CPU.Frequency[fmt.Sprintf("cpu%d", core.ID)]; exists {
+					freqStr = fmt.Sprintf("  %s", utils.FormatHz(freq))
+				} else {
+					freqStr = "  N/A"
+				}
+				freqStr = utils.PadString(utils.TruncateString(freqStr, actualColumnWidth), actualColumnWidth, ' ')
+				
+				gaugeRow = append(gaugeRow, gaugeStr)
+				freqRow = append(freqRow, freqStr)
+			} else {
+				// Empty column for alignment
+				emptyCell := strings.Repeat(" ", actualColumnWidth)
+				gaugeRow = append(gaugeRow, emptyCell)
+				freqRow = append(freqRow, emptyCell)
 			}
 		}
+		
+		// Join columns with proper spacing
+		spacer := strings.Repeat(" ", columnSpacing)
+		tableRows = append(tableRows, strings.Join(gaugeRow, spacer))
+		tableRows = append(tableRows, strings.Join(freqRow, spacer))
+		
+		// Add spacing between core groups (except for the last row)
+		if row < coresPerColumn-1 {
+			tableRows = append(tableRows, "")
+		}
 	}
-
+	
+	cores = append(cores, strings.Join(tableRows, "\n"))
 	return strings.Join(cores, "\n")
 }
 

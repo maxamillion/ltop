@@ -52,6 +52,9 @@ func (s *SysReader) ListDir(path string) ([]string, error) {
 
 func (s *SysReader) ReadCPUFreq(cpu string) (string, error) {
 	path := fmt.Sprintf("devices/system/cpu/cpu%s/cpufreq/scaling_cur_freq", cpu)
+	if !s.FileExists(path) {
+		return "", nil // Return empty string if file doesn't exist, no error
+	}
 	return s.ReadString(path)
 }
 

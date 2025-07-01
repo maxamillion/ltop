@@ -213,9 +213,9 @@ func (c *CPUCollector) collectLoadAverage(metrics *models.CPUMetrics) error {
 func (c *CPUCollector) collectCPUFrequency(metrics *models.CPUMetrics) error {
 	metrics.Frequency = make(map[string]uint64)
 
-	for i, core := range metrics.Cores {
+	for _, core := range metrics.Cores {
 		freq, err := c.sysReader.ReadCPUFreq(strconv.Itoa(core.ID))
-		if err != nil {
+		if err != nil || freq == "" {
 			continue
 		}
 
@@ -224,7 +224,7 @@ func (c *CPUCollector) collectCPUFrequency(metrics *models.CPUMetrics) error {
 			continue
 		}
 
-		cpuKey := fmt.Sprintf("cpu%d", i)
+		cpuKey := fmt.Sprintf("cpu%d", core.ID)
 		metrics.Frequency[cpuKey] = freqHz * 1000
 	}
 
