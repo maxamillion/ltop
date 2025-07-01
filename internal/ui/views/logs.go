@@ -1,14 +1,11 @@
 package views
 
 import (
-	"fmt"
-	"strconv"
 	"strings"
 
 	"github.com/admiller/ltop/internal/models"
 	"github.com/admiller/ltop/internal/ui/components"
 	"github.com/admiller/ltop/internal/ui/styles"
-	"github.com/admiller/ltop/pkg/utils"
 )
 
 type LogView struct {
@@ -29,83 +26,39 @@ func NewLogView() *LogView {
 	}
 }
 
-func (lv *LogView) Render(snapshot *models.MetricsSnapshot, width, height int) string {
-	if snapshot == nil {
-		return "No data available"
+func (v *LogView) Render(snapshot *models.MetricsSnapshot, width, height int) string {
+	if snapshot == nil || len(snapshot.Logs.Entries) == 0 {
+		return styles.Panel().Width(width).Height(height).Render("No log entries available")
 	}
 
-	lv.table.SetSize(width-4, height-8)
-	lv.table.ClearRows()
+	v.updateEntries(snapshot.Logs.Entries)
 
-	filteredLogs := lv.filterLogs(snapshot.Logs.Entries)
+	v.table.SetSize(width, height)
+	content := v.table.Render()
+	return styles.Panel().Width(width).Height(height).Render(content)
+}
 
-	for _, entry := range filteredLogs {
-		row := []string{
-			utils.FormatTime(entry.Timestamp),
+func (lv *LogView) updateEntries(entries []models.LogEntry) {
+	filteredEntries := lv.filterLogs(entries)
+
+	var rows [][]string
+	for _, entry := range filteredEntries {
+		rows = append(rows, []string{
+			entry.Timestamp.Format("15:04:05"),
 			strings.ToUpper(entry.Level),
 			entry.Source,
 			entry.Message,
-		}
-		lv.table.AddRow(row)
+		})
 	}
+	lv.table.Rows = rows
 
-	if lv.autoScroll && len(filteredLogs) > 0 {
-		lv.table.SetSelected(len(filteredLogs) - 1)
-	}
-
-	var content strings.Builder
-
-	content.WriteString(lv.renderLogSummary(snapshot.Logs))
-	content.WriteString("\n\n")
-	content.WriteString(lv.renderFilters())
-	content.WriteString("\n")
-	content.WriteString(lv.table.RenderWithInfo())
-
-	return styles.Panel().Render(content.String())
-}
-
-func (lv *LogView) renderLogSummary(logs models.LogMetrics) string {
-	var summary []string
-	summary = append(summary, styles.Title().Render("System Logs"))
-
-	errorStyle := styles.Error()
-	warnStyle := styles.Warning()
-	infoStyle := styles.Info()
-
-	counts := fmt.Sprintf("Errors: %s | Warnings: %s | Info: %s",
-		errorStyle.Render(strconv.Itoa(logs.ErrorCount)),
-		warnStyle.Render(strconv.Itoa(logs.WarnCount)),
-		infoStyle.Render(strconv.Itoa(logs.InfoCount)))
-	summary = append(summary, counts)
-
-	if len(logs.Sources) > 0 {
-		sources := fmt.Sprintf("Sources: %s", strings.Join(logs.Sources, ", "))
-		summary = append(summary, styles.Muted().Render(sources))
-	}
-
-	return strings.Join(summary, "\n")
-}
-
-func (lv *LogView) renderFilters() string {
-	var filters []string
-
-	if lv.filterLevel != "" {
-		filters = append(filters, fmt.Sprintf("Level: %s", lv.filterLevel))
-	}
-	if lv.filterSource != "" {
-		filters = append(filters, fmt.Sprintf("Source: %s", lv.filterSource))
-	}
-
-	scrollStatus := "Manual"
 	if lv.autoScroll {
-		scrollStatus = "Auto"
+		lv.table.Selected = len(lv.table.Rows) - 1
+		lv.table.ScrollTop = len(lv.table.Rows) - lv.table.Height + 1
+		if lv.table.ScrollTop < 0 {
+			lv.table.ScrollTop = 0
+		}
 	}
-	filters = append(filters, fmt.Sprintf("Scroll: %s", scrollStatus))
-
-	if len(filters) > 0 {
-		return styles.HelpText().Render("Filters: " + strings.Join(filters, " | "))
-	}
-	return styles.HelpText().Render("No filters active (f to set filters, a to toggle auto-scroll)")
 }
 
 func (lv *LogView) filterLogs(entries []models.LogEntry) []models.LogEntry {

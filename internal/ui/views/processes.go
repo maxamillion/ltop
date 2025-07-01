@@ -44,62 +44,23 @@ func NewProcessView() *ProcessView {
 	}
 }
 
-func (pv *ProcessView) Render(snapshot *models.MetricsSnapshot, width, height int) string {
+func (v *ProcessView) Render(snapshot *models.MetricsSnapshot, width, height int) string {
 	if snapshot == nil {
 		return "No data available"
 	}
 
-	searchHeight := 0
-	if pv.searchMode {
-		searchHeight = 3
+	v.updateProcesses(snapshot.Processes.Processes)
+
+	var content string
+	if v.confirmDialog.IsVisible() {
+		content = v.confirmDialog.Render()
+	} else if v.inputDialog.IsVisible() {
+		content = v.inputDialog.Render()
+	} else {
+		content = v.renderTable(width, height)
 	}
 
-	pv.table.SetSize(width-4, height-4-searchHeight)
-	pv.table.ClearRows()
-
-	filteredProcesses := pv.filterProcesses(snapshot.Processes.Processes)
-	sortedProcesses := pv.sortProcesses(filteredProcesses)
-
-	for _, proc := range sortedProcesses {
-		row := []string{
-			strconv.Itoa(proc.PID),
-			strconv.Itoa(proc.PPID),
-			proc.Name,
-			utils.FormatProcessState(proc.State),
-			utils.FormatPercent(proc.CPUPercent),
-			utils.FormatBytes(proc.MemoryRSS),
-			utils.FormatDuration(proc.CPUTime),
-			proc.User,
-			proc.Command,
-		}
-		pv.table.AddRow(row)
-	}
-
-	var content strings.Builder
-
-	if pv.searchMode {
-		content.WriteString("Search: ")
-		content.WriteString(pv.searchInput.Render())
-		content.WriteString("\n")
-		content.WriteString(styles.HelpText().Render("Press Enter to search, Esc to cancel"))
-		content.WriteString("\n\n")
-	}
-
-	content.WriteString(pv.renderProcessSummary(len(filteredProcesses), len(snapshot.Processes.Processes)))
-	content.WriteString("\n")
-	content.WriteString(pv.table.RenderWithInfo())
-
-	result := styles.Panel().Render(content.String())
-
-	if pv.confirmDialog.IsVisible() {
-		result += "\n" + pv.confirmDialog.Render()
-	}
-
-	if pv.inputDialog.IsVisible() {
-		result += "\n" + pv.inputDialog.Render()
-	}
-
-	return result
+	return styles.Panel().Width(width).Height(height).Render(content)
 }
 
 func (pv *ProcessView) MoveUp() {
@@ -122,18 +83,30 @@ func (pv *ProcessView) GetSelectedProcess() []string {
 	return pv.table.GetSelectedRow()
 }
 
-func (pv *ProcessView) renderProcessSummary(filtered, total int) string {
-	summary := ""
-	if filtered != total {
-		summary = styles.Info().Render(
-			fmt.Sprintf("Showing %d of %d processes", filtered, total))
-	} else {
-		summary = styles.Info().Render(
-			fmt.Sprintf("Showing %d processes", total))
-	}
+func (v *ProcessView) updateProcesses(processes []models.Process) {
+	filteredProcesses := v.filterProcesses(processes)
+	sortedProcesses := v.sortProcesses(filteredProcesses)
 
-	sortInfo := fmt.Sprintf("Sort: %s (%s)", pv.sortField, pv.sortOrder)
-	return summary + " | " + styles.Muted().Render(sortInfo)
+	var rows [][]string
+	for _, proc := range sortedProcesses {
+		rows = append(rows, []string{
+			strconv.Itoa(proc.PID),
+			strconv.Itoa(proc.PPID),
+			proc.Name,
+			utils.FormatProcessState(proc.State),
+			utils.FormatPercent(proc.CPUPercent),
+			utils.FormatBytes(proc.MemoryRSS),
+			utils.FormatDuration(proc.CPUTime),
+			proc.User,
+			proc.Command,
+		})
+	}
+	v.table.Rows = rows
+}
+
+func (v *ProcessView) renderTable(width, height int) string {
+	v.table.SetSize(width, height)
+	return v.table.Render()
 }
 
 func (pv *ProcessView) filterProcesses(processes []models.Process) []models.Process {

@@ -25,7 +25,7 @@ func (nv *NetworkView) Render(snapshot *models.MetricsSnapshot, width, height in
 	sections = append(sections, nv.renderNetworkInterfaces(snapshot))
 
 	content := strings.Join(sections, "\n\n")
-	return styles.Panel().Width(width).Render(content)
+	return styles.Panel().Width(width).Height(height).Render(content)
 }
 
 func (nv *NetworkView) renderNetworkInterfaces(snapshot *models.MetricsSnapshot) string {
