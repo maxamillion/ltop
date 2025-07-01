@@ -117,8 +117,35 @@ func (cv *CPUView) renderCPUCores(snapshot *models.MetricsSnapshot, width int) s
 	// Prepare core data organized by rows and columns
 	coresPerColumn := (len(snapshot.CPU.Cores) + numColumns - 1) / numColumns
 	
-	// Build table-like structure with proper alignment
+	// Build core entries one by one, with frequency directly under each gauge
+	var coreEntries []string
+	
+	for i, core := range snapshot.CPU.Cores {
+		if i >= len(cv.coreGauges) {
+			break
+		}
+		
+		// Create gauge
+		label := fmt.Sprintf("Core %d", core.ID)
+		gaugeStr := cv.coreGauges[i].Render(core.Usage, label)
+		
+		// Create frequency string
+		freqValue := ""
+		if freq, exists := snapshot.CPU.Frequency[fmt.Sprintf("cpu%d", core.ID)]; exists {
+			freqValue = utils.FormatHz(freq)
+		} else {
+			freqValue = "N/A"
+		}
+		freqStr := fmt.Sprintf("    %s", freqValue) // Simple indent
+		
+		// Combine gauge and frequency
+		coreEntry := gaugeStr + "\n" + freqStr
+		coreEntries = append(coreEntries, coreEntry)
+	}
+	
+	// Arrange cores in columns - simplified approach
 	var tableRows []string
+	spacer := strings.Repeat(" ", columnSpacing)
 	
 	for row := 0; row < coresPerColumn; row++ {
 		var gaugeRow []string
@@ -127,35 +154,22 @@ func (cv *CPUView) renderCPUCores(snapshot *models.MetricsSnapshot, width int) s
 		for col := 0; col < numColumns; col++ {
 			coreIndex := col*coresPerColumn + row
 			
-			if coreIndex < len(snapshot.CPU.Cores) {
-				core := snapshot.CPU.Cores[coreIndex]
-				
-				// Create gauge string
-				label := fmt.Sprintf("Core %d", core.ID)
-				gaugeStr := cv.coreGauges[coreIndex].Render(core.Usage, label)
-				gaugeStr = utils.PadString(utils.TruncateString(gaugeStr, actualColumnWidth), actualColumnWidth, ' ')
-				
-				// Create frequency string
-				freqStr := ""
-				if freq, exists := snapshot.CPU.Frequency[fmt.Sprintf("cpu%d", core.ID)]; exists {
-					freqStr = fmt.Sprintf("  %s", utils.FormatHz(freq))
-				} else {
-					freqStr = "  N/A"
-				}
-				freqStr = utils.PadString(utils.TruncateString(freqStr, actualColumnWidth), actualColumnWidth, ' ')
+			if coreIndex < len(coreEntries) {
+				// Split the core entry back into gauge and freq lines
+				lines := strings.Split(coreEntries[coreIndex], "\n")
+				gaugeStr := utils.PadString(utils.TruncateString(lines[0], actualColumnWidth), actualColumnWidth, ' ')
+				freqStr := utils.PadString(utils.TruncateString(lines[1], actualColumnWidth), actualColumnWidth, ' ')
 				
 				gaugeRow = append(gaugeRow, gaugeStr)
 				freqRow = append(freqRow, freqStr)
 			} else {
-				// Empty column for alignment
+				// Empty column
 				emptyCell := strings.Repeat(" ", actualColumnWidth)
 				gaugeRow = append(gaugeRow, emptyCell)
 				freqRow = append(freqRow, emptyCell)
 			}
 		}
 		
-		// Join columns with proper spacing
-		spacer := strings.Repeat(" ", columnSpacing)
 		tableRows = append(tableRows, strings.Join(gaugeRow, spacer))
 		tableRows = append(tableRows, strings.Join(freqRow, spacer))
 		
