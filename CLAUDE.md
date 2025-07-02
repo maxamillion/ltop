@@ -1,6 +1,6 @@
-# CLAUDE.md
+# CLAUDE.md / GEMINI.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+This file provides guidance to Claude Code (claude.ai/code) and Gemini CLI (github.com/google-gemini/gemini-cli/) when working with code in this repository.
 
 ## Essential Commands
 
